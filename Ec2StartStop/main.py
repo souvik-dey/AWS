@@ -1,11 +1,10 @@
 import boto3
 import os
 def get_ec2_con_for_give_region(my_region):
-	session = boto3.Session(region_name=my_region)
-	ec2_con_re = session.resource(service_name='ec2')
+	ec2_con_re = boto3.resource('ec2',region_name=my_region)
 	return ec2_con_re
 	
-def list_instances_on_my_region(ec2_console):
+def list_instances_on_my_region(ec2_con_re):
 	for each_instance in ec2_con_re.instances.all():
 		print(each_instance.id) 
 
@@ -22,7 +21,7 @@ def start_instances(ec2_con_re, instance_id):
 		for each in ec2_con_re.instances.filter(Filters=[{'Name': 'instance-id', 'Values':[instance_id]}]):
 			each.start()
 			print("please wait it is going to start, once if it is started then we will let you know")
-			each.wait_until_runnig()
+			each.wait_until_running()
 			print("Now it is running")
 			
 def stop_instances(ec2_con_res, instance_id):
@@ -39,9 +38,9 @@ def stop_instances(ec2_con_res, instance_id):
 def main():
 	my_region = input("Enter your region name: ") 
 	print("Please wait...connecting to your AWS EC2 console.....") 
-	ec2_console = get_ec2_con_for_give_region(my_region) 
+	ec2_con_re = get_ec2_con_for_give_region(my_region) 
 	print("Please wait listing all instances ids in your region {}".format(my_region)) 
-	list_instances_on_my_region(ec2_console)
+	list_instances_on_my_region(ec2_con_re)
 	instance_id = input("Now choose your instance id to start or stop: ") 
 	start_stop = input("Enter either start or stop for you EC2 Instance: ") 
 	while True: 
@@ -51,9 +50,9 @@ def main():
 		else:
 			break 
 	if start_stop == 'start':
-		start_instances(ec2_console, instance_id)
+		start_instances(ec2_con_re, instance_id)
 	elif start_stop == 'stop': 
-		stop_instances(ec2_console, instance_id)
+		stop_instances(ec2_con_re, instance_id)
 		
 if _name_ == '__main__': 
 	os.system('cls') 
